@@ -5,7 +5,11 @@ zsh_weather(){
     local woeid=$(curl https://www.metaweather.com/api/location/search/\?lattlong=$lat,$lng | jq '.[0].woeid')
     local weather_abbr=$(curl https://www.metaweather.com/api/location/$woeid/ | jq '.consolidated_weather | .[0].weather_state_abbr')
     local symbol
-    case $weather_abbr in 
+    case $weather_abbr in
+        "\"sn\"")
+            symbol=;;
+        "\"\"")
+            symbol=;;
         "\"lc\"")
             symbol="\uE319";;
         ha)
