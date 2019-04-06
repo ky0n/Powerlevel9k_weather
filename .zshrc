@@ -19,6 +19,10 @@ POWERLEVEL9K_CUSTOM_ARCH_ICON="echo \"\uF312 \""
 POWERLEVEL9K_CUSTOM_ARCH_ICON_BACKGROUND=233
 POWERLEVEL9K_CUSTOM_ARCH_ICON_FOREGROUND=041
 
+POWERLEVEL9K_CUSTOM_HAND="echo "
+POWERLEVEL9K_CUSTOM_HAND_BACKGROUND=gold1
+POWERLEVEL9K_CUSTOM_HAND_FOREGROUND=black
+
 POWERLEVEL9K_STATUS_OK_BACKGROUND=grey19
 
 POWERLEVEL9K_TIME_BACKGROUND=041
@@ -26,7 +30,11 @@ POWERLEVEL9K_TIME_FOREGROUND=black
 
 POWERLEVEL9K_IP_BACKGROUND=027
 
-POWERLEVEL9K_BATTERY_BACKGROUND=
+POWERLEVEL9K_BATTERY_CHARGED_BACKGROUND=grey19
+POWERLEVEL9K_BATTERY_CHARGING_BACKGROUND=grey19
+POWERLEVEL9K_BATTERY_DISCONNECTED_BACKGROUND=grey19
+POWERLEVEL9K_BATTERY_LOW_BACKGROUND=grey19
+
 POWERLEVEL9K_BATTERY_CHARGED_FOREGROUND=220
 POWERLEVEL9K_BATTERY_CHARGING_FOREGROUND=047
 POWERLEVEL9K_BATTERY_DISCONNECTED_FOREGROUND=165
@@ -46,93 +54,91 @@ POWERLEVEL9K_BATTERY_VERBOSE=false
 
 zsh_weather(){
     tmpdir=/tmp/powerlevel_weather
+    powerlevel_weather=''
     if [ -d "$tmpdir" ]; then
         local old_time=$(cat $tmpdir/time)  
-        if [ $(expr $old_time - $(date +%s)) -gt 300 ]; then
-            #für Darmstadt
-            #local lat=49.87
-            #local lng=8.64
-            #local woeid=$(curl --silent https://www.metaweather.com/api/location/search/\?lattlong=$lat,$lng | jq '.[0].woeid')
-            local woeid=650272
-            local weather=$(curl --silent https://www.metaweather.com/api/location/$woeid/ | jq '.consolidated_weather | .[0]')
-            local temp=$(echo $weather | jq '.the_temp' | awk '{print substr($0, 0, 4)}')
-            local weather_abbr=$(echo $weather | jq '.weather_state_abbr')
-            #echo $weather_time
-            case $weather_abbr in
-                "\"sn\"")
-                    symbol="\uFA97";;
-                "\"sl\"")
-                    symbol="\uE317";;
-                "\"h\"")
-                    symbol="\uFA91";;
-                "\"t\"")
-                    symbol="\uE31C";;
-                "\"hr\"")
-                    symbol="\uE318";;
-                "\"lr\"")
-                    symbol="\uE319";;
-                "\"s\"")
-                    symbol="\uE309";;
-                "\"hc\"")
-                    symbol="\uE312";;
-                "\"lc\"")
-                    symbol="\uE30C";;
-                "\"c\"")
-                    symbol="\uE30D";;
-            esac
-            local powerlevel_weather="$symbol  \u23A2$temp\E339 \uF2C8"
-            echo $powerlevel_weather > $tmpdir/weather
-            echo $(date +%s) > $tmpdir/time
+        local old_weather=$(cat $tmpdir/weather)
+        if [[ $old_weather != *[0-9]* ]] | [ $(expr $(date +%s) - $old_time) -gt 300 ]; then
+            echo $(requestWeather)
         else
-            local powerlevel_weather=$(cat $tmpdir/weather)
+            echo $(cat $tmpdir/weather)
         fi
     else
         #local tmpdir=$(mktemp -d "${TMPDIR:-/tmp/}$(basename $0).XXXXXXXXXXXX")
         mkdir $tmpdir
-        #für Darmstadt
-        #local lat=49.87
-        #local lng=8.64
-        #local woeid=$(curl --silent https://www.metaweather.com/api/location/search/\?lattlong=$lat,$lng | jq '.[0].woeid')
-        local woeid=650272
-        local weather=$(curl --silent https://www.metaweather.com/api/location/$woeid/ | jq '.consolidated_weather | .[0]')
-        local temp=$(echo $weather | jq '.the_temp' | awk '{print substr($0, 0, 4)}')
-        local weather_abbr=$(echo $weather | jq '.weather_state_abbr')
-        #echo $weather_time
-        case $weather_abbr in
-            "\"sn\"")
-                symbol="\uFA97";;
-            "\"sl\"")
-                symbol="\uE317";;
-            "\"h\"")
-                symbol="\uFA91";;
-            "\"t\"")
-                symbol="\uE31C";;
-            "\"hr\"")
-                symbol="\uE318";;
-            "\"lr\"")
-                symbol="\uE319";;
-            "\"s\"")
-                symbol="\uE309";;
-            "\"hc\"")
-                symbol="\uE312";;
-            "\"lc\"")
-                symbol="\uE30C";;
-            "\"c\"")
-                symbol="\uE30D";;
-        esac
-        local powerlevel_weather="$symbol  \u23A2$temp\uE339 \uF2C8"
-        echo $powerlevel_weather > $tmpdir/weather
-        echo $(date +%s) > $tmpdir/time
+        echo $(requestWeather)
     fi
+}
+
+requestWeather(){
+    #local lat=49.87
+    #local lng=8.64
+    #local woeid=$(curl --silent https://www.metaweather.com/api/location/search/\?lattlong=$lat,$lng | jq '.[0].woeid')
+    local woeid=650272
+    local weather=$(curl --silent https://www.metaweather.com/api/location/$woeid/ | jq '.consolidated_weather | .[0]')
+    local temp=$(echo $weather | jq '.the_temp' | LC_ALL=C xargs /usr/bin/printf '%.*f\n' 1)
+    local weather_abbr=$(echo $weather | jq '.weather_state_abbr')
+    case $weather_abbr in
+        "\"sn\"")
+            symbol="\uFA97";;
+        "\"sl\"")
+            symbol="\uE317";;
+        "\"h\"")
+            symbol="\uFA91";;
+        "\"t\"")
+            symbol="\uE31C";;
+        "\"hr\"")
+            symbol="\uE318";;
+        "\"lr\"")
+            symbol="\uE319";;
+        "\"s\"")
+            symbol="\uE309";;
+        "\"hc\"")
+            symbol="\uE312";;
+        "\"lc\"")
+            symbol="\uE30C";;
+        "\"c\"")
+            symbol="\uE30D";;
+    esac
+    # case $weather_abbr in
+    #     "\"sn\"")
+    #         symbol=;;
+    #     "\"sl\"")
+    #         symbol=;;
+    #     "\"h\"")
+    #         symbol=;;
+    #     "\"t\"")
+    #         symbol=;;
+    #     "\"hr\"")
+    #         symbol=;;
+    #     "\"lr\"")
+    #         symbol=;;
+    #     "\"s\"")
+    #         symbol=;;
+    #     "\"hc\"")
+    #         symbol=;;
+    #     "\"lc\"")
+    #         symbol=;;
+    #     "\"c\"")
+    #         symbol=;;
+    # esac
+    symbol=$(echo $symbol | sed 's/\^//g')
+    temp=$(echo $temp | sed 's/\^//g')
+    local powerlevel_weather="$symbol ⎮$temp "
+    echo $powerlevel_weather > $tmpdir/weather
+    echo $(date +%s) > $tmpdir/time
+    #powerlevel_weather=$(echo $powerlevel_weather | sed 's/\^//g')
     echo $powerlevel_weather
 }
+
+POWERLEVEL9K_PYENV_PROMPT_ALWAYS_SHOW=false
 
 POWERLEVEL9K_CUSTOM_WEATHER="zsh_weather"
 POWERLEVEL9K_CUSTOM_WEATHER_BACKGROUND=143
 POWERLEVEL9K_CUSTOM_WEATHER_FOREGROUND=black
 
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(custom_arch_icon dir dir_writable vcs)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status root_indicator background_jobs time ip battery custom_weather)
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(custom_arch_icon dir dir_writable pyenv vcs custom_hand)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status root_indicator background_jobs time battery custom_weather)
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
