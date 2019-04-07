@@ -10,5 +10,5 @@ for usage:
 * add 'custom_weather' in on of the powerlevel9k prompt elements in the .zshrc file
 <br/><br/>
 <div style="text-align:center">
-<img src="example.png"/>
+<img src="example.png">
 </div>
