@@ -66,7 +66,7 @@ requestWeather(){
 
 POWERLEVEL9K_CUSTOM_WEATHER="zsh_weather"
 POWERLEVEL9K_CUSTOM_WEATHER_BACKGROUND=221
-POWERLEVEL9K_CUSTOM_WEATHER_FOREGROUND=blac
+POWERLEVEL9K_CUSTOM_WEATHER_FOREGROUND=black
 
 # add 'custom_weather' to the powerlevel9k prompt elements to use the weather element
 # like POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(custom_weather)
