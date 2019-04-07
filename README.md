@@ -1,5 +1,5 @@
 # Powerlevel9k_weather
-## code snipped to show the current weather in terminal as a powerline9k prompt element
+## code snippet to show the current weather in terminal as a powerline9k prompt element
 requirements:
 * zsh
 * powerlevel9k
