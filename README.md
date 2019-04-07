@@ -4,6 +4,7 @@ requirements:
 * zsh
 * powerlevel9k
 * powerline-font
+* curl, jq
 
 usage:
 * add the code snipped in [weather.sh](weather.sh) to your .zshrc file
